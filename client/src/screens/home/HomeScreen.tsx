@@ -1,4 +1,5 @@
 import { where } from '@react-native-firebase/firestore';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import { ArrowRight2, SearchNormal1, Setting5 } from 'iconsax-react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -7,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { auth } from '../../../firebase.config';
@@ -110,6 +111,26 @@ const HomeScreen = ({ navigation, route }: any) => {
       setProducts(result);
     }
   }, [productsData, params]);
+
+  const triggerNotification = async () => {
+    const sendPush = httpsCallable(
+      getFunctions(undefined, 'asia-southeast1'),
+      'sendPushNotification',
+    );
+
+    try {
+      await sendPush({
+        title: 'Xin chào!',
+        body: 'Đây là thông báo thử nghiệm từ Cloud Function v2',
+        token:
+          'f6Rmx9DIS42-m_h3i_lphR:APA91bHtwl6-ldVdy1dUz_OVAo40lN8t4flkHfsSeaV84ubvVN0zmnHeqfZXa20fGDm3GxMMKzd57YponvYkXqu7PnNxDlCFVVZ9iUtvqgdpD9nVGrDp5o0',
+        type: 'review',
+        id: '6tY45jzpCJqoihWlopR0',
+      });
+    } catch (error) {
+      console.error('Error calling function:', error);
+    }
+  };
 
   return (
     <Container>
@@ -241,11 +262,15 @@ const HomeScreen = ({ navigation, route }: any) => {
               font={fontFamillies.poppinsBold}
               size={sizes.thinTitle}
             />
-            <TouchableOpacity onPress={() => { }}>
+            <TouchableOpacity onPress={() => {}}>
               <ArrowRight2 size={sizes.thinTitle} color={colors.text} />
             </TouchableOpacity>
           </RowComponent>
         </SectionComponent>
+
+        <RowComponent justify="center" onPress={triggerNotification}>
+          <TextComponent text="Send" size={32} />
+        </RowComponent>
 
         <View
           style={{
